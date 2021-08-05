@@ -4,7 +4,6 @@
 
 
 ## Building the extension with xk6
-___
 ```
 First install xk6 with:
 $ go install github.com/k6io/xk6/cmd/xk6@latest
@@ -17,7 +16,6 @@ $ xk6 build v0.32.0 --with github.com/shanyongsy/xk6-tcp="/home/shanyong/code/k6
 ```
 
 ## Example
-___
 ```
 import tcp from 'k6/x/tcp';
 
