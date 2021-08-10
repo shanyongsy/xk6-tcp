@@ -2,6 +2,7 @@ package tcp
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"net"
 
@@ -12,15 +13,30 @@ func init() {
 	modules.Register("k6/x/tcp", new(TCP))
 }
 
-type CallBack func(data string)
+type CallBack func(data []byte)
 
 type TCP struct {
-	conn     net.Conn
-	connStr  string
-	lastErr  error
+
+	// conn
+	conn net.Conn
+
+	// address and port, for example, 127.0.0.1:8000.
+	connStr string
+
+	// The last error from this struct.
+	lastErr error
+
+	// The function pointer used to receive the message needs to be passed in JS.
 	onRevMsg CallBack
 }
 
+// Create new tcp.
+// A new TCP link must be used, otherwise it will cause the same conn to communicate.
+func (tcp *TCP) Create() *TCP {
+	return new(TCP)
+}
+
+// To init all things.
 func (tcp *TCP) Connect(addr string, onRevMsg CallBack) error {
 	tcp.connStr = addr
 	tcp.onRevMsg = onRevMsg
@@ -35,8 +51,14 @@ func (tcp *TCP) Connect(addr string, onRevMsg CallBack) error {
 	return nil
 }
 
-func (tcp *TCP) Write(data []byte) error {
-	_, err := tcp.conn.Write(data)
+// Send msg by this function.
+func (tcp *TCP) Write(data string) error {
+
+	if tcp.conn == nil {
+		return errors.New("call Write function, but conn is nil.")
+	}
+
+	_, err := tcp.conn.Write([]byte(data))
 	if err != nil {
 		return err
 	}
@@ -44,24 +66,31 @@ func (tcp *TCP) Write(data []byte) error {
 	return nil
 }
 
-func (tcp *TCP) WriteLn(data []byte) error {
-	_, err := tcp.conn.Write(append(data, []byte("\n")...))
-	return err
+// Send msg by this function.
+func (tcp *TCP) WriteLn(data string) error {
+	return tcp.Write(fmt.Sprintln(data))
 }
 
+// Get msg by this function.
 func (tcp *TCP) readConn() {
 	for {
 		scanner := bufio.NewScanner(tcp.conn)
 
-		for {
-			ok := scanner.Scan()
-			text := scanner.Text()
+		if scanner != nil {
+			for {
+				ok := scanner.Scan()
 
-			if !ok {
-				fmt.Println("Reached EOF on server connection.")
-				break
-			} else {
-				tcp.onRevMsg(text)
+				if !ok {
+					fmt.Println("Reached EOF on server connection.")
+					break
+				} else {
+					text := scanner.Bytes()
+					fmt.Println(text)
+
+					if tcp.onRevMsg != nil {
+						tcp.onRevMsg(text)
+					}
+				}
 			}
 		}
 	}
