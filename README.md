@@ -15,13 +15,5 @@ Or if you're working with a local directory run the following, replacing the pat
 $ xk6 build v0.32.0 --with github.com/shanyongsy/xk6-tcp="/home/shanyong/code/k6code/tcp-extension/xk6-tcp
 ```
 
-## Example
-```
-import tcp from 'k6/x/tcp';
-
-const conn = tcp.connect('host:port')
-
-export default function () {
-  tcp.write(conn, 'some data\n'); // or tcp.writeLn(conn, 'some data')
-}
-```
+## K6 Script
+[k6-tcp script example](https://github.com/shanyongsy/xk6-tcp/blob/main/example/loadtest/test_tcp.js)
