@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 
 	"go.k6.io/k6/js/common"
@@ -87,6 +88,10 @@ func (client *Client) WriteStrLn(data string) error {
 
 // Get msg by this function.
 func (client *Client) readConn() {
+	defer func() {
+		log.Println("readConn Err")
+	}()
+
 	for {
 		scanner := bufio.NewScanner(client.conn)
 
