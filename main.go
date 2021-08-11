@@ -2,10 +2,12 @@ package tcp
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"net"
 
+	"go.k6.io/k6/js/common"
 	"go.k6.io/k6/js/modules"
 )
 
@@ -13,9 +15,11 @@ func init() {
 	modules.Register("k6/x/tcp", new(TCP))
 }
 
-type CallBack func(data []byte)
+// TCP is the k6 tcp extension.
+type TCP struct{}
 
-type TCP struct {
+// Client is the TCP Client wrapper.
+type Client struct {
 
 	// conn
 	conn net.Conn
@@ -30,35 +34,45 @@ type TCP struct {
 	onRevMsg CallBack
 }
 
-// Create new tcp.
-// A new TCP link must be used, otherwise it will cause the same conn to communicate.
-func (tcp *TCP) Create() *TCP {
-	return new(TCP)
+// XClient represents the Client constructor (i.e. `new tcp.Client()`) and
+// returns a new TCP client object.
+func (r *TCP) XClient(ctxPtr *context.Context) interface{} {
+	rt := common.GetRuntime(*ctxPtr)
+	return common.Bind(rt, &Client{}, ctxPtr)
 }
 
+// Create new tcp.
+// A new TCP link must be used, otherwise it will cause the same conn to communicate.
+//func (tcp *Client) Create() *Client {
+//	return new(Client)
+//}
+
+// Send the received message to JS. Com through this function.
+type CallBack func(data []byte)
+
 // To init all things.
-func (tcp *TCP) Connect(addr string, onRevMsg CallBack) error {
-	tcp.connStr = addr
-	tcp.onRevMsg = onRevMsg
-	tcp.conn, tcp.lastErr = net.Dial("tcp", tcp.connStr)
-	if tcp.lastErr != nil {
-		tcp.conn = nil
-		return tcp.lastErr
+func (client *Client) Connect(addr string, onRevMsg CallBack) error {
+	client.connStr = addr
+	client.onRevMsg = onRevMsg
+	client.conn, client.lastErr = net.Dial("tcp", client.connStr)
+	if client.lastErr != nil {
+		client.conn = nil
+		return client.lastErr
 	} else {
-		go tcp.readConn()
+		go client.readConn()
 	}
 
 	return nil
 }
 
 // Send msg by this function.
-func (tcp *TCP) Write(data string) error {
+func (client *Client) WriteStr(data string) error {
 
-	if tcp.conn == nil {
+	if client.conn == nil {
 		return errors.New("call Write function, but conn is nil.")
 	}
 
-	_, err := tcp.conn.Write([]byte(data))
+	_, err := client.conn.Write([]byte(data))
 	if err != nil {
 		return err
 	}
@@ -67,14 +81,14 @@ func (tcp *TCP) Write(data string) error {
 }
 
 // Send msg by this function.
-func (tcp *TCP) WriteLn(data string) error {
-	return tcp.Write(fmt.Sprintln(data))
+func (client *Client) WriteStrLn(data string) error {
+	return client.WriteStr(fmt.Sprintln(data))
 }
 
 // Get msg by this function.
-func (tcp *TCP) readConn() {
+func (client *Client) readConn() {
 	for {
-		scanner := bufio.NewScanner(tcp.conn)
+		scanner := bufio.NewScanner(client.conn)
 
 		if scanner != nil {
 			for {
@@ -84,11 +98,10 @@ func (tcp *TCP) readConn() {
 					fmt.Println("Reached EOF on server connection.")
 					break
 				} else {
-					text := scanner.Bytes()
-					fmt.Println(text)
+					data := scanner.Bytes()
 
-					if tcp.onRevMsg != nil {
-						tcp.onRevMsg(text)
+					if client.onRevMsg != nil {
+						client.onRevMsg(data)
 					}
 				}
 			}
