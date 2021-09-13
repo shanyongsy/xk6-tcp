@@ -72,7 +72,7 @@ $ xk6 build v0.32.0 --with github.com/shanyongsy/xk6-tcp="/home/sy/xk6-tcp"
 
 
 ## K6 Script
-[k6-tcp script example](https://github.com/shanyongsy/xk6-tcp/blob/main/example/loadtest/test_tcp.js)
+[k6-tcp script example](https://github.com/shanyongsy/xk6-tcp/tree/gateway/example)
 
 ## Tcp Server
 [Test server](https://github.com/shanyongsy/tcp-server-client-go)
