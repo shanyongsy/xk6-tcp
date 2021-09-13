@@ -1,0 +1,60 @@
+// splitting messages from TCP socket stream
+// ---------------------------------
+// | length     | C2GMessage       |
+// ---------------------------------
+//
+// length is uint16, big-endian
+// length == sizeof(C2GMessage)
+
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./pb";
+
+// client to gateway message
+message C2GMessage {
+  FrameMessage gatewayMessage = 1;
+  FrameMessage businessMessage = 2;
+}
+
+// gateway to client message
+message G2CMessage {
+  FrameMessage gatewayMessage = 1;
+  FrameMessage businessMessage = 2;
+}
+
+message FrameMessage {
+  string cmd = 1; // The cmd of message body
+  bytes body = 2; // Message body, serialized protobuf format
+}
+
+message C2GVerifyMessage {
+  string uuid = 1;
+  string token = 2;
+}
+
+message G2CVerifyMessage {
+  uint32 result = 1; // success=0, fail=1
+}
+
+message C2GHeartbeatMessage {
+  int64 milli = 1; // used to compute ping value
+}
+
+message G2CHeartbeatMessage {
+  int64 milli = 1; // used to compute ping value
+}
+
+message C2GTestMessage {
+  string test = 1;
+}
+
+message G2CTestMessage {
+  uint32 result = 1; // success=0, fail=1
+  string test = 2;
+}
+
+message G2CNotifyMessage {
+  string text = 1;
+}
