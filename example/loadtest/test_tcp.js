@@ -7,16 +7,18 @@ import { randStr, randomInterval } from '../utils/random.js';
 const susRate = new Rate('susRate');
 const errCounter = new Counter('errCounter');
 
-const strAddr = '127.0.0.1:9000';
+// const strAddr = '127.0.0.1:9000';
+const strAddr = '10.89.130.4:9000';
 
-let userName = randStr();
+
+// let userName = randStr();
 let client = new tcp.Client();
 let bCreate = false;
 
 export let options = {
     stages: [
+        { duration: '1s', target: 1 },
         { duration: '10s', target: 1 },
-        { duration: '30s', target: 1 },
     ],
 }
 

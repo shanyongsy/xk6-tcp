@@ -3,7 +3,6 @@ module github.com/shanyongsy/xk6-tcp
 go 1.17
 
 require (
-	github.com/golang/protobuf v1.5.0
 	github.com/google/uuid v1.1.2
 	go.k6.io/k6 v0.33.0
 	google.golang.org/protobuf v1.27.1
@@ -20,6 +19,7 @@ require (
 	github.com/fatih/color v1.11.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
+	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/jhump/protoreflect v1.8.2 // indirect
